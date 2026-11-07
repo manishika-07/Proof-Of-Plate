@@ -1,0 +1,3209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProofOfPlate 🔍🍽️ | The Food Detective for Delivery</title>
+  <style>
+    /* ══════════════════════════════════════════════════════════
+       CSS DESIGN SYSTEM & THEME
+       ══════════════════════════════════════════════════════════ */
+    :root {
+      --primary: #FF5238;
+      --primary-hover: #E84128;
+      --primary-subtle: #FFF0ED;
+      --surface-cream: #FAF7F2;
+      --surface-card: #FFFFFF;
+      --surface-card-subtle: #F4EFEB;
+      --text-plum: #2D142C;
+      --text-muted: #725D71;
+      --border-subtle: #E8DFD8;
+
+      /* Badge Status Strict Palette */
+      --badge-verified: #059669;
+      --badge-verified-bg: #ECFDF5;
+      --badge-verified-border: #A7F3D0;
+      --badge-mixed: #D97706;
+      --badge-mixed-bg: #FFFBEB;
+      --badge-mixed-border: #FDE68A;
+      --badge-warning: #DC2626;
+      --badge-warning-bg: #FEF2F2;
+      --badge-warning-border: #FECACA;
+
+      --plate-coin: #F59E0B;
+      --shadow-sm: 0 2px 8px rgba(45, 20, 44, 0.06);
+      --shadow-md: 0 8px 24px rgba(45, 20, 44, 0.10);
+      --shadow-lg: 0 16px 40px rgba(45, 20, 44, 0.16);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+
+      --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --surface-cream: #140C16;
+      --surface-card: #201424;
+      --surface-card-subtle: #2B1C30;
+      --text-plum: #F5EEF6;
+      --text-muted: #AA95AC;
+      --border-subtle: #38243E;
+      --primary-subtle: #3D1E24;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: #1A0F1E;
+      color: var(--text-plum);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      padding: 16px;
+    }
+
+    /* Ambient drifting foodie background */
+    .ambient-sky {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 20%, #301736 0%, #150A19 100%);
+    }
+
+    .doodle {
+      position: absolute;
+      opacity: 0.16;
+      user-select: none;
+      animation: floatDoodle 26s infinite linear;
+      font-size: 34px;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+    }
+
+    @keyframes floatDoodle {
+      0% {
+        transform: translateY(110vh) rotate(0deg) scale(0.9);
+      }
+
+      50% {
+        transform: translateY(50vh) rotate(180deg) scale(1.1);
+      }
+
+      100% {
+        transform: translateY(-15vh) rotate(360deg) scale(0.9);
+      }
+    }
+
+    /* Outer Container: Desktop Workbench + Phone Simulator */
+    .app-workbench {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .top-workbench-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      max-width: 420px;
+      padding: 8px 16px;
+      background: rgba(45, 20, 44, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-full);
+      color: #FFF;
+      font-size: 13px;
+    }
+
+    .top-btn {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFF;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .top-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .top-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       PHONE FRAME (390 × 844 Viewport)
+       ══════════════════════════════════════════════════════════ */
+    .phone-frame {
+      width: 390px;
+      height: 844px;
+      background: var(--surface-cream);
+      border-radius: 48px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75), 0 0 0 12px #2A172D, 0 0 0 14px rgba(255, 255, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border-subtle);
+      transition: background-color 0.3s ease;
+    }
+
+    /* Dynamic Island */
+    .dynamic-island {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 124px;
+      height: 32px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      color: #FFF;
+      font-size: 10px;
+      cursor: pointer;
+      transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .dynamic-island:hover {
+      width: 170px;
+    }
+
+    .dynamic-island .camera-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: #111;
+      border: 1px solid #333;
+    }
+
+    /* Phone Status Bar */
+    .status-bar {
+      height: 48px;
+      padding: 12px 24px 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-plum);
+      z-index: 90;
+      position: relative;
+    }
+
+    /* Screen Viewport */
+    .phone-viewport {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      scroll-behavior: smooth;
+      background: linear-gradient(180deg, var(--surface-cream) 0%, rgba(250, 247, 242, 0.95) 40%, rgba(45, 20, 44, 0.05) 100%);
+    }
+
+    .phone-viewport::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .phone-viewport::-webkit-scrollbar-thumb {
+      background: rgba(45, 20, 44, 0.2);
+      border-radius: 4px;
+    }
+
+    /* App Header */
+    .app-header {
+      padding: 10px 16px 14px 16px;
+      background: var(--surface-card);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .brand-badge {
+      font-size: 9px;
+      background: #2D142C;
+      color: #FFF;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wallet-pill {
+      background: #FFF7ED;
+      border: 1px solid #FDBA74;
+      color: #9A3412;
+      padding: 5px 10px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .wallet-pill:hover {
+      transform: scale(1.04);
+    }
+
+    .delivery-location {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .location-name {
+      color: var(--text-plum);
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       HERO RESTAURANT CARD & THE PROOF VS HYPE CONTRAST
+       ══════════════════════════════════════════════════════════ */
+    .restaurant-hero {
+      padding: 16px;
+      background: var(--surface-card);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .rest-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+
+    .rest-name {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text-plum);
+      letter-spacing: -0.4px;
+    }
+
+    .rest-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    /* The Switch: Proof vs Hype */
+    .toggle-bar-container {
+      background: var(--surface-card-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 4px;
+      display: flex;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .toggle-tab {
+      flex: 1;
+      text-align: center;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+    }
+
+    .toggle-tab.active {
+      background: var(--surface-card);
+      color: var(--text-plum);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .toggle-tab.hype-tab.active {
+      color: #92400E;
+    }
+
+    .toggle-tab.proof-tab.active {
+      color: var(--primary);
+    }
+
+    /* HYPE CARD (The Old Black-Box Star) */
+    .hype-rating-card {
+      background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+      border: 1px dashed #F59E0B;
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .hype-score {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hype-star-badge {
+      background: #15803D;
+      color: #FFF;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .hype-count {
+      font-size: 12px;
+      color: #78350F;
+      font-weight: 600;
+    }
+
+    .hype-disclaimer {
+      font-size: 10px;
+      color: #92400E;
+      background: rgba(245, 158, 11, 0.15);
+      padding: 4px 8px;
+      border-radius: 4px;
+      max-width: 130px;
+      text-align: right;
+    }
+
+    /* PROOF SCORE CARD (The Hero Card) */
+    .proof-score-card {
+      background: linear-gradient(135deg, #F0FDF4 0%, #ECFDF5 100%);
+      border: 1.5px solid var(--badge-verified-border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.08);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .proof-score-card:hover {
+      border-color: var(--badge-verified);
+    }
+
+    .proof-score-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .proof-donut-ring {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: conic-gradient(var(--badge-verified) 0% 94%, #D1FAE5 94% 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .proof-donut-ring::after {
+      content: '';
+      width: 38px;
+      height: 38px;
+      background: #FFF;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .proof-donut-value {
+      position: relative;
+      z-index: 2;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--badge-verified);
+    }
+
+    .proof-meta-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #065F46;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .proof-meta-sub {
+      font-size: 11px;
+      color: #047857;
+      margin-top: 2px;
+    }
+
+    .explainer-trigger {
+      background: #FFF;
+      border: 1px solid var(--badge-verified-border);
+      color: #047857;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Sticky Filter Chips */
+    .filter-scroll-strip {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      overflow-x: auto;
+      background: var(--surface-cream);
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 61px;
+      z-index: 40;
+    }
+
+    .filter-scroll-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-chip {
+      white-space: nowrap;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-plum);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+
+    .filter-chip:hover {
+      border-color: var(--primary);
+    }
+
+    .filter-chip.active {
+      background: var(--text-plum);
+      color: #FFF;
+      border-color: var(--text-plum);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       DISH LIST & DISH CARD WITH VIDEO PROOF STRIP
+       ══════════════════════════════════════════════════════════ */
+    .menu-section {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .dish-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .dish-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .dish-header-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .dish-info {
+      flex: 1;
+    }
+
+    .dish-type-icon {
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid #16A34A;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 4px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+
+    .dish-type-icon::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #16A34A;
+      border-radius: 50%;
+    }
+
+    .dish-type-icon.non-veg {
+      border-color: #DC2626;
+    }
+
+    .dish-type-icon.non-veg::after {
+      background: #DC2626;
+    }
+
+    .dish-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-plum);
+      line-height: 1.3;
+      margin-bottom: 4px;
+      cursor: pointer;
+    }
+
+    .dish-price-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-plum);
+      margin-bottom: 4px;
+    }
+
+    .dish-portion-tag {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--surface-card-subtle);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .dish-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .dish-action-col {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      width: 90px;
+    }
+
+    .dish-photo-wrap {
+      width: 86px;
+      height: 76px;
+      border-radius: var(--radius-md);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      background: #EEE;
+    }
+
+    .dish-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      background: linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%);
+      transition: transform 0.25s ease;
+    }
+
+    .dish-photo-wrap:hover .dish-img-placeholder {
+      transform: scale(1.08);
+    }
+
+    .add-btn {
+      width: 86px;
+      background: #FFF;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 0;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(255, 82, 56, 0.15);
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .add-btn:hover {
+      background: var(--primary);
+      color: #FFF;
+    }
+
+    /* Subtle pulse animation for strong proof */
+    .strong-proof-glow {
+      animation: pulseProof 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseProof {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(5, 150, 105, 0);
+      }
+    }
+
+    /* HORIZONTAL VIDEO PROOF STRIP */
+    .proof-video-strip-wrap {
+      background: var(--surface-card-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .proof-strip-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .verified-eaters-count {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-plum);
+    }
+
+    .freshness-timestamp {
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+
+    .video-thumbnails-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .video-thumbnails-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .video-thumb {
+      flex-shrink: 0;
+      width: 76px;
+      height: 104px;
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      background: #1A0F1E;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: transform 0.15s ease;
+    }
+
+    .video-thumb:hover {
+      transform: scale(1.04);
+    }
+
+    /* Simulated animated looping video preview */
+    .video-mock-gradient {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background-size: 200% 200%;
+      animation: gradientShift 4s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .video-thumb-emoji {
+      font-size: 26px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+      animation: foodWiggle 3s infinite ease-in-out;
+    }
+
+    @keyframes foodWiggle {
+
+      0%,
+      100% {
+        transform: scale(1) rotate(0deg);
+      }
+
+      50% {
+        transform: scale(1.08) rotate(3deg);
+      }
+    }
+
+    .play-badge-icon {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: rgba(0, 0, 0, 0.65);
+      color: #FFF;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+    }
+
+    .video-time-tag {
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+      background: rgba(0, 0, 0, 0.7);
+      color: #FFF;
+      font-size: 8px;
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+
+    .video-buyer-tag {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      font-size: 9px;
+      color: #10B981;
+    }
+
+    /* THREE PROOF BADGES */
+    .dish-badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .proof-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: var(--radius-full);
+      border: 1px solid transparent;
+      user-select: none;
+    }
+
+    /* 3 Badge States: Verified, Mixed, Warning */
+    .badge-state-verified {
+      background: var(--badge-verified-bg);
+      color: #065F46;
+      border-color: var(--badge-verified-border);
+    }
+
+    .badge-state-mixed {
+      background: var(--badge-mixed-bg);
+      color: #92400E;
+      border-color: var(--badge-mixed-border);
+    }
+
+    .badge-state-warning {
+      background: var(--badge-warning-bg);
+      color: #991B1B;
+      border-color: var(--badge-warning-border);
+    }
+
+    .dropped-tag {
+      font-size: 8px;
+      background: #EF4444;
+      color: #FFF;
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-left: 2px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    /* ZERO PROOF CARD (Honest State) */
+    .zero-proof-state {
+      background: #FFF7ED;
+      border: 1.5px dashed #F97316;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .zero-proof-mascot {
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .zero-proof-text {
+      flex: 1;
+    }
+
+    .zero-proof-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #9A3412;
+    }
+
+    .zero-proof-sub {
+      font-size: 10px;
+      color: #C2410C;
+      margin-top: 2px;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       FLOATING CART BAR & NAVIGATION
+       ══════════════════════════════════════════════════════════ */
+    .floating-cart-bar {
+      position: absolute;
+      bottom: 74px;
+      left: 16px;
+      right: 16px;
+      background: var(--primary);
+      color: #FFF;
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 24px rgba(255, 82, 56, 0.45);
+      cursor: pointer;
+      z-index: 60;
+      transform: translateY(120%);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .floating-cart-bar.visible {
+      transform: translateY(0);
+    }
+
+    .cart-summary-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-count-weight {
+      font-size: 11px;
+      opacity: 0.9;
+    }
+
+    .cart-price-total {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .view-cart-btn-text {
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Bottom Nav Bar */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: var(--surface-card);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 70;
+      padding-bottom: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: var(--text-muted);
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      background: none;
+      border: none;
+      transition: color 0.15s ease;
+    }
+
+    .nav-item.active {
+      color: var(--primary);
+    }
+
+    .nav-icon {
+      font-size: 18px;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       MODALS, SHEETS & SCREENS
+       ══════════════════════════════════════════════════════════ */
+    .modal-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(45, 20, 44, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .bottom-sheet {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface-card);
+      border-radius: 28px 28px 0 0;
+      max-height: 85%;
+      overflow-y: auto;
+      padding: 20px 20px 32px 20px;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+      z-index: 210;
+    }
+
+    .modal-overlay.active .bottom-sheet {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 5px;
+      background: var(--border-subtle);
+      border-radius: 10px;
+      margin: 0 auto 16px auto;
+    }
+
+    /* SCREEN 2: DISH PROOF DETAIL (TIKTOK STYLE REEL) */
+    .detail-video-container {
+      width: 100%;
+      height: 280px;
+      background: #000;
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .simulated-reel-bg {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 72px;
+      background: linear-gradient(135deg, #FF7E5F 0%, #FEB47B 100%);
+      position: relative;
+    }
+
+    .reel-buyer-pill {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .portion-reality-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      border: 3px dashed rgba(255, 255, 255, 0.9);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .portion-reality-overlay.active {
+      display: flex;
+    }
+
+    .reality-label {
+      background: rgba(0, 0, 0, 0.85);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .reality-toggle-btn {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      color: #FFF;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+    }
+
+    /* Breakdown Bars */
+    .metric-breakdown-row {
+      margin-bottom: 12px;
+    }
+
+    .breakdown-label-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-plum);
+      margin-bottom: 4px;
+    }
+
+    .breakdown-bar-track {
+      width: 100%;
+      height: 8px;
+      background: var(--surface-card-subtle);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .bar-seg-verified {
+      background: var(--badge-verified);
+    }
+
+    .bar-seg-mixed {
+      background: var(--badge-mixed);
+    }
+
+    .bar-seg-warning {
+      background: var(--badge-warning);
+    }
+
+    /* Timeline mini chart */
+    .proof-timeline-box {
+      background: var(--surface-card-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin: 16px 0;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .timeline-header {
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .timeline-events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .timeline-event-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .timeline-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SCREEN 3: POST-DELIVERY 3-TAP REVIEW FLOW
+       ══════════════════════════════════════════════════════════ */
+    .delivery-push-mock {
+      background: #2D142C;
+      color: #FFF;
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      animation: slideDown 0.4s ease;
+    }
+
+    .review-stepper-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .review-question-card {
+      background: var(--surface-cream);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .review-q-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-plum);
+      margin-bottom: 4px;
+    }
+
+    .review-q-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .emoji-tap-options {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .emoji-btn {
+      flex: 1;
+      background: var(--surface-card);
+      border: 1.5px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .emoji-btn:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .emoji-btn.selected {
+      background: var(--primary-subtle);
+      border-color: var(--primary);
+      box-shadow: 0 4px 10px rgba(255, 82, 56, 0.15);
+    }
+
+    .emoji-icon {
+      font-size: 26px;
+    }
+
+    .emoji-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-plum);
+    }
+
+    /* Optional Camera Step Mock */
+    .camera-mock-box {
+      background: #111;
+      border-radius: var(--radius-md);
+      height: 180px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+    }
+
+    .camera-countdown-ring {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 4px solid #EF4444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 900;
+      cursor: pointer;
+      animation: recordPulse 1.5s infinite;
+    }
+
+    @keyframes recordPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.6);
+      }
+
+      50% {
+        transform: scale(1.06);
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+      }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       RUBBER STAMP ANIMATION & CONFETTI
+       ══════════════════════════════════════════════════════════ */
+    .stamp-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0) rotate(-15deg);
+      pointer-events: none;
+      z-index: 300;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .stamp-container.slam {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotate(-12deg);
+    }
+
+    .rubber-stamp {
+      border: 5px solid #059669;
+      color: #059669;
+      font-size: 28px;
+      font-weight: 900;
+      padding: 8px 18px;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: rgba(236, 253, 245, 0.95);
+      box-shadow: 0 10px 25px rgba(5, 150, 105, 0.4);
+      mask-image: radial-gradient(circle, black 70%, rgba(0, 0, 0, 0.8) 100%);
+    }
+
+    #confettiCanvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 250;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       SCREEN 6: KITCHEN PARTNER DASHBOARD
+       ══════════════════════════════════════════════════════════ */
+    .kitchen-view {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .partner-banner {
+      background: #2D142C;
+      color: #FFF;
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .kitchen-alert-card {
+      background: var(--badge-warning-bg);
+      border: 1.5px solid var(--badge-warning-border);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dish-health-item {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       DEMO CONTROLS DRAWER (THE STAR OF THE DEMO)
+       ══════════════════════════════════════════════════════════ */
+    .demo-controls-panel {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      width: 320px;
+      background: rgba(26, 15, 30, 0.92);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      color: #FFF;
+      padding: 16px;
+      z-index: 400;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .demo-controls-panel.minimized {
+      transform: translateY(calc(100% - 44px));
+    }
+
+    .demo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+
+    .demo-header h4 {
+      font-size: 13px;
+      font-weight: 800;
+      color: #FBBF24;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .demo-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .demo-action-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 8px 6px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .demo-action-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .decay-formula-box {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 10px;
+      color: #A7F3D0;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    /* Analytics Mini Feed */
+    .analytics-log-box {
+      max-height: 80px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 9px;
+      color: #93C5FD;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px;
+      border-radius: 4px;
+      margin-top: 8px;
+    }
+
+    /* Accessibility / Motion Settings */
+    @media (prefers-reduced-motion: reduce) {
+
+      .doodle,
+      .video-thumb-emoji,
+      .strong-proof-glow,
+      .camera-countdown-ring {
+        animation: none !important;
+      }
+
+      .phone-viewport {
+        scroll-behavior: auto;
+      }
+    }
+  </style>
+</head>
+
+<body data-theme="light">
+
+  <!-- Ambient Drifting Food Doodles -->
+  <div class="ambient-sky" id="ambientSky">
+    <div class="doodle" style="left: 10%; animation-duration: 28s; animation-delay: 0s;">🥐</div>
+    <div class="doodle" style="left: 25%; animation-duration: 22s; animation-delay: 5s;">🥟</div>
+    <div class="doodle" style="left: 55%; animation-duration: 32s; animation-delay: 2s;">🍕</div>
+    <div class="doodle" style="left: 75%; animation-duration: 24s; animation-delay: 8s;">🧋</div>
+    <div class="doodle" style="left: 88%; animation-duration: 26s; animation-delay: 12s;">🍛</div>
+  </div>
+
+  <div class="app-workbench">
+
+    <!-- Top Workbench Control Bar -->
+    <div class="top-workbench-bar">
+      <div style="display:flex; align-items:center; gap:6px;">
+        <span style="font-size:16px;">🔍🍽️</span>
+        <strong style="font-weight:800;">PROOFOFPLATE</strong>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button class="top-btn" id="toggleThemeBtn" title="Toggle Light / Dark mode">🌓 Theme</button>
+        <button class="top-btn" id="openReviewMockBtn" title="Test Post-Delivery 3-Tap Flow">🛵 Deliver Order</button>
+        <button class="top-btn" id="viewKitchenBtn" title="Switch to Kitchen Dashboard">👨‍🍳 Partner View</button>
+      </div>
+    </div>
+
+    <!-- Phone Simulator (390 × 844) -->
+    <div class="phone-frame" id="phoneFrame">
+
+      <!-- Canvas for Celebratory Confetti -->
+      <canvas id="confettiCanvas" width="390" height="844"></canvas>
+
+      <!-- Stamp Animation Container -->
+      <div class="stamp-container" id="stampContainer">
+        <div class="rubber-stamp">VERIFIED PROOF</div>
+      </div>
+
+      <!-- Dynamic Island -->
+      <div class="dynamic-island" id="dynamicIsland" title="Tap to check proof status">
+        <div class="camera-dot"></div>
+        <span id="islandText" style="font-weight:700;">11:47 PM • Proof Active</span>
+        <span style="font-size:11px;">🛡️</span>
+      </div>
+
+      <!-- Phone Status Bar -->
+      <div class="status-bar">
+        <span>11:47</span>
+        <div style="display:flex; gap:5px; align-items:center;">
+          <span>5G</span>
+          <span>98% 🔋</span>
+        </div>
+      </div>
+
+      <!-- Primary Scrollable Viewport -->
+      <div class="phone-viewport" id="phoneViewport">
+
+        <!-- Push Notification Simulation Banner (Delivered State) -->
+        <div style="padding: 10px 16px 0 16px; display:none;" id="pushNotifyContainer">
+          <div class="delivery-push-mock" id="deliveryPushCard">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:24px;">🛵</span>
+              <div>
+                <div style="font-size:12px; font-weight:800;">Order Delivered • 11:58 PM</div>
+                <div style="font-size:10px; opacity:0.8;">Tap to post 3-sec proof & earn +20 Coins!</div>
+              </div>
+            </div>
+            <span style="font-size:14px; color:#F59E0B; font-weight:900;">GO →</span>
+          </div>
+        </div>
+
+        <!-- App Header -->
+        <header class="app-header">
+          <div class="header-top">
+            <div class="brand-logo" id="logoEasterEgg">
+              <span>ProofOfPlate</span>
+              <span class="brand-badge">BETA</span>
+            </div>
+            <div class="header-actions">
+              <div class="wallet-pill" id="walletPillBtn">
+                <span>🪙</span>
+                <span id="walletCoinBalance">140</span>
+              </div>
+              <div style="font-size:18px; cursor:pointer;" id="searchIcon" title="Search Dishes">🔎</div>
+            </div>
+          </div>
+          <div class="delivery-location">
+            <div class="location-name">
+              <span>📍 Indiranagar, Bengaluru</span>
+              <span style="font-size:10px;">▼</span>
+            </div>
+            <span style="font-size:11px; font-weight:600; color:var(--primary);">22 Mins Fast</span>
+          </div>
+        </header>
+
+        <!-- RESTAURANT MENU VIEW (DEFAULT) -->
+        <div id="customerMenuView">
+
+          <!-- Restaurant Hero Card -->
+          <section class="restaurant-hero">
+            <div class="rest-title-row">
+              <div>
+                <h1 class="rest-name" id="currentRestName">The Midnight Baker & Co.</h1>
+                <p class="rest-meta">French Patisserie, Artisanal Desserts • 2.4 km</p>
+              </div>
+              <button class="top-btn" id="switchRestaurantBtn"
+                style="font-size:10px; padding:4px 8px; color:var(--text-plum); background:var(--surface-card-subtle); border-color:var(--border-subtle);">
+                ⇄ Switch Kitchen
+              </button>
+            </div>
+
+            <!-- PROOF VS HYPE TOGGLE (The Core Contrast) -->
+            <div class="toggle-bar-container">
+              <button class="toggle-tab hype-tab" id="hypeTabBtn">
+                <span>🤖 The Black-Box Star (Hype)</span>
+              </button>
+              <button class="toggle-tab proof-tab active" id="proofTabBtn">
+                <span>🔍 ProofOfPlate (Verified)</span>
+              </button>
+            </div>
+
+            <!-- HYPE STATE VIEW (The Old 4.5★ Black Box) -->
+            <div class="hype-rating-card" id="hypeRatingCard" style="display:none;">
+              <div class="hype-score">
+                <div class="hype-star-badge">4.5 ★</div>
+                <div>
+                  <div class="hype-count">7,240+ Ratings</div>
+                  <div style="font-size:10px; color:#92400E;">Includes packaging & delivery speed</div>
+                </div>
+              </div>
+              <div class="hype-disclaimer">
+                ⚠️ "Proprietary Algorithm" hides individual dish reality
+              </div>
+            </div>
+
+            <!-- PROOF SCORE CARD (The Real Truth) -->
+            <div class="proof-score-card" id="proofScoreCard">
+              <div class="proof-score-left">
+                <div class="proof-donut-ring" id="heroDonutRing">
+                  <span class="proof-donut-value" id="heroScoreVal">94%</span>
+                </div>
+                <div>
+                  <div class="proof-meta-title">
+                    <span>Dish Proof Score</span>
+                    <span
+                      style="font-size:10px; background:#D1FAE5; color:#065F46; padding:1px 5px; border-radius:4px;">14-Day
+                      Live</span>
+                  </div>
+                  <div class="proof-meta-sub" id="heroVerifiedCount">
+                    Based on 148 verified eaters • 0 black-box hype
+                  </div>
+                </div>
+              </div>
+              <div class="explainer-trigger" id="openExplainerBtn">
+                <span>Where does this come from?</span>
+                <span>ℹ️</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Sticky Filter Chips -->
+          <div class="filter-scroll-strip" id="filterChipsRow">
+            <div class="filter-chip active" data-filter="all">All Dishes (6)</div>
+            <div class="filter-chip" data-filter="video">🎬 Has Video Proof</div>
+            <div class="filter-chip" data-filter="fresh">🌱 Fresh & Moist (90%+)</div>
+            <div class="filter-chip" data-filter="portion">⚖️ Portion-Approved</div>
+            <div class="filter-chip" data-filter="recent">⚡ Proof This Week</div>
+          </div>
+
+          <!-- Dishes List Container -->
+          <main class="menu-section" id="dishListContainer">
+            <!-- Dynamically populated via JS -->
+          </main>
+
+        </div> <!-- End customerMenuView -->
+
+        <!-- KITCHEN DASHBOARD VIEW (SCREEN 6) -->
+        <div id="kitchenDashboardView" style="display:none;">
+          <div class="kitchen-view">
+            <div class="partner-banner">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                  <h2 style="font-size:16px; font-weight:800;">Kitchen Proof Radar</h2>
+                  <p style="font-size:11px; opacity:0.8;">The Midnight Baker & Co. • Partner Portal</p>
+                </div>
+                <button class="top-btn" id="exitKitchenBtn" style="font-size:11px; padding:4px 10px;">← Back to
+                  Diner</button>
+              </div>
+            </div>
+
+            <!-- Kitchen Alert Card -->
+            <div class="kitchen-alert-card" id="kitchenAlertCard">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:12px; font-weight:800; color:#991B1B;">🚨 Proof Alert: Quality Drop
+                  Detected</span>
+                <span
+                  style="font-size:10px; background:#F87171; color:#FFF; padding:2px 6px; border-radius:4px; font-weight:800;">ACTION
+                  REQ.</span>
+              </div>
+              <p style="font-size:11px; color:#7F1D1D;" id="kitchenAlertText">
+                Dark Chocolate Truffle's Freshness badge dropped to 48% after 5 negative clips recorded in the last 6
+                days.
+              </p>
+              <div style="display:flex; gap:8px; margin-top:4px;">
+                <button class="top-btn" id="fixAndReverifyBtn"
+                  style="background:#DC2626; border-color:#DC2626; font-size:11px;">
+                  Fix & Request Re-verification
+                </button>
+                <button class="top-btn" id="previewFlaggedClipsBtn"
+                  style="background:#FFF; color:#991B1B; border-color:#FCA5A5; font-size:11px;">
+                  Watch 5 Clips
+                </button>
+              </div>
+            </div>
+
+            <div style="font-size:13px; font-weight:800; color:var(--text-plum); margin-top:6px;">
+              Live Dish Health (Recency-Weighted)
+            </div>
+
+            <div id="kitchenDishHealthList" style="display:flex; flex-direction:column; gap:10px;">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+      </div> <!-- End phone-viewport -->
+
+      <!-- Floating Cart Bar -->
+      <div class="floating-cart-bar" id="floatingCartBar">
+        <div class="cart-summary-text">
+          <span class="cart-count-weight" id="cartCountWeight">1 item • Serves 1 (350g)</span>
+          <span class="cart-price-total" id="cartPriceTotal">₹290</span>
+        </div>
+        <div class="view-cart-btn-text">
+          <span>Checkout Proof Order</span>
+          <span>→</span>
+        </div>
+      </div>
+
+      <!-- Bottom Nav Bar -->
+      <nav class="bottom-nav">
+        <button class="nav-item active" id="navMenuBtn">
+          <span class="nav-icon">🍽️</span>
+          <span>Menu</span>
+        </button>
+        <button class="nav-item" id="navProofRadarBtn">
+          <span class="nav-icon">🔍</span>
+          <span>Radar</span>
+        </button>
+        <button class="nav-item" id="navWalletBtn">
+          <span class="nav-icon">🪙</span>
+          <span>Wallet</span>
+        </button>
+        <button class="nav-item" id="navAdminPeekBtn">
+          <span class="nav-icon">🛡️</span>
+          <span>Anti-Fraud</span>
+        </button>
+      </nav>
+
+      <!-- ══════════════════════════════════════════════════════════
+           MODALS & BOTTOM SHEETS
+           ══════════════════════════════════════════════════════════ -->
+
+      <!-- MODAL 1: EXPLAINER SHEET ("Where does this come from?") -->
+      <div class="modal-overlay" id="explainerModal">
+        <div class="bottom-sheet">
+          <div class="sheet-handle"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="font-size:17px; font-weight:800; color:var(--text-plum);">Where does this score come from?</h3>
+            <span style="cursor:pointer; font-size:20px;" class="close-modal-x">&times;</span>
+          </div>
+
+          <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:14px;">
+            Say goodbye to fake 5-star reviews bought in bulk. ProofOfPlate calculates dish scores using a transparent,
+            tamper-proof formula:
+          </p>
+
+          <div
+            style="background:var(--surface-cream); border-radius:var(--radius-md); padding:14px; margin-bottom:14px; border:1px solid var(--border-subtle);">
+            <div style="font-size:12px; font-weight:800; color:var(--primary); margin-bottom:6px;">1. 100% Verified
+              Eaters Only</div>
+            <div style="font-size:11px; color:var(--text-muted); line-height:1.4;">
+              Only diners who paid for and took delivery of this exact dish within 30 days can cast a badge vote or
+              upload unboxing clips.
+            </div>
+          </div>
+
+          <div
+            style="background:var(--surface-cream); border-radius:var(--radius-md); padding:14px; margin-bottom:14px; border:1px solid var(--border-subtle);">
+            <div style="font-size:12px; font-weight:800; color:var(--primary); margin-bottom:6px;">2. Recency Decay
+              Formula</div>
+            <div style="font-size:11px; color:var(--text-muted); line-height:1.4; margin-bottom:8px;">
+              Yesterday's dry pastry matters more than a rave review from 6 months ago. Older feedback quickly fades:
+            </div>
+            <div class="decay-formula-box"
+              style="background:#FFF; color:#065F46; border:1px solid var(--border-subtle);">
+              Days 0–7: Weight 1.0 (Full Impact)<br>
+              Days 8–14: Weight 0.6 (Fresh)<br>
+              Days 15–30: Weight 0.15 (Fading)<br>
+              Days 30+: Weight 0.0 (Expired / Disregarded)
+            </div>
+          </div>
+
+          <div
+            style="background:var(--surface-cream); border-radius:var(--radius-md); padding:14px; margin-bottom:16px; border:1px solid var(--border-subtle);">
+            <div style="font-size:12px; font-weight:800; color:var(--primary); margin-bottom:6px;">3. The Honest-Score
+              Cap</div>
+            <div style="font-size:11px; color:var(--text-muted); line-height:1.4;">
+              If a dish has fewer than 5 verified eaters, we label it <strong>"Early Proof"</strong> rather than
+              inventing a confident number.
+            </div>
+          </div>
+
+          <button class="add-btn" style="width:100%; padding:10px; border-radius:var(--radius-md);"
+            id="closeExplainerDoneBtn">
+            Got it, show me the food
+          </button>
+        </div>
+      </div>
+
+      <!-- MODAL 2: DISH PROOF DETAIL (TIKTOK REEL + TIMELINE) -->
+      <div class="modal-overlay" id="dishDetailModal">
+        <div class="bottom-sheet" style="max-height:92%;">
+          <div class="sheet-handle"></div>
+
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+            <div>
+              <h3 style="font-size:17px; font-weight:800; color:var(--text-plum);" id="detailDishTitle">Dark Belgian
+                Chocolate Truffle</h3>
+              <p style="font-size:11px; color:var(--text-muted);" id="detailDishPortion">Serves 1 • 320 g • ₹290</p>
+            </div>
+            <span style="cursor:pointer; font-size:22px;" class="close-modal-x">&times;</span>
+          </div>
+
+          <!-- Vertical Reel Container -->
+          <div class="detail-video-container">
+            <div class="simulated-reel-bg" id="detailReelBg">
+              <span id="detailReelEmoji">🍰</span>
+              <div class="reel-buyer-pill">
+                <span>✔ Verified Buyer • Ordered 3d ago</span>
+              </div>
+
+              <!-- Portion Reality Check Overlay -->
+              <div class="portion-reality-overlay" id="portionOverlay">
+                <div
+                  style="width:140px; height:140px; border:2px dashed #FFF; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                  <span class="reality-label">☕ Standard Coaster (10cm)</span>
+                </div>
+              </div>
+
+              <button class="reality-toggle-btn" id="toggleRealityBtn">
+                📏 Portion Reality Check
+              </button>
+            </div>
+          </div>
+
+          <!-- Badge Breakdown Bars -->
+          <div style="margin-bottom:16px;">
+            <div style="font-size:13px; font-weight:800; color:var(--text-plum); margin-bottom:10px;">
+              14-Day Badge Breakdown
+            </div>
+
+            <!-- Portion Bar -->
+            <div class="metric-breakdown-row">
+              <div class="breakdown-label-line">
+                <span>Portion Size</span>
+                <span id="portionScoreText">88% True-to-Size</span>
+              </div>
+              <div class="breakdown-bar-track">
+                <div class="bar-seg-verified" id="barPortionVerified" style="width:88%;"></div>
+                <div class="bar-seg-mixed" id="barPortionMixed" style="width:8%;"></div>
+                <div class="bar-seg-warning" id="barPortionWarning" style="width:4%;"></div>
+              </div>
+            </div>
+
+            <!-- Freshness Bar -->
+            <div class="metric-breakdown-row">
+              <div class="breakdown-label-line">
+                <span>Freshness & Moisture</span>
+                <span id="freshScoreText">54% (Quality Warning)</span>
+              </div>
+              <div class="breakdown-bar-track">
+                <div class="bar-seg-verified" id="barFreshVerified" style="width:54%;"></div>
+                <div class="bar-seg-mixed" id="barFreshMixed" style="width:16%;"></div>
+                <div class="bar-seg-warning" id="barFreshWarning" style="width:30%;"></div>
+              </div>
+            </div>
+
+            <!-- Arrived Intact Bar -->
+            <div class="metric-breakdown-row">
+              <div class="breakdown-label-line">
+                <span>Arrived Intact</span>
+                <span id="intactScoreText">95% Perfect</span>
+              </div>
+              <div class="breakdown-bar-track">
+                <div class="bar-seg-verified" id="barIntactVerified" style="width:95%;"></div>
+                <div class="bar-seg-mixed" id="barIntactMixed" style="width:5%;"></div>
+                <div class="bar-seg-warning" id="barIntactWarning" style="width:0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Proof Timeline Chart -->
+          <div class="proof-timeline-box">
+            <div class="timeline-header">
+              <span>Proof Timeline (Last 4 Weeks)</span>
+              <span style="font-size:10px; color:#DC2626; font-weight:700;" id="timelineAlertTag">⚠️ Quality Dipped 6d
+                ago</span>
+            </div>
+            <div class="timeline-events-list" id="detailTimelineEvents">
+              <div class="timeline-event-item">
+                <div class="timeline-dot" style="background:#10B981;"></div>
+                <div><strong>Week 1–2:</strong> 96% positive unboxing clips. "Super rich & moist".</div>
+              </div>
+              <div class="timeline-event-item">
+                <div class="timeline-dot" style="background:#EF4444;"></div>
+                <div><strong>6 days ago:</strong> Kitchen swapped supplier / baker. 5 diners reported dry crumb.</div>
+              </div>
+              <div class="timeline-event-item">
+                <div class="timeline-dot" style="background:#F59E0B;"></div>
+                <div><strong>Today:</strong> Badge dropped to Mixed (Amber). Kitchen alerted.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA Buttons -->
+          <div style="display:flex; gap:10px; margin-top:16px;">
+            <button class="add-btn" id="modalAddToCartBtn" style="flex:2; padding:12px; font-size:13px;">
+              Add to Cart • ₹290
+            </button>
+            <button class="top-btn" id="saveDishBtn"
+              style="flex:1; color:var(--text-plum); background:var(--surface-cream); border-color:var(--border-subtle); justify-content:center;">
+              ♡ Save
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MODAL 3: POST-DELIVERY 3-TAP REVIEW FLOW -->
+      <div class="modal-overlay" id="postDeliveryModal">
+        <div class="bottom-sheet">
+          <div class="sheet-handle"></div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:20px;">🕵️‍♂️</span>
+              <h3 style="font-size:16px; font-weight:800; color:var(--text-plum);">3-Sec Proof Report</h3>
+            </div>
+            <span style="cursor:pointer; font-size:22px;" class="close-modal-x">&times;</span>
+          </div>
+
+          <p style="font-size:11px; color:var(--text-muted); margin-bottom:14px;">
+            Order #8472: <strong>Dark Belgian Chocolate Truffle Cake</strong>
+          </p>
+
+          <div class="review-stepper-container" id="reviewStepperContainer">
+
+            <!-- STEP 1: PORTION -->
+            <div class="review-question-card" id="stepPortionCard">
+              <div class="review-q-title">1. How was the portion size?</div>
+              <div class="review-q-sub">Did it match the "Serves 1, 350g" claim?</div>
+              <div class="emoji-tap-options">
+                <div class="emoji-btn" data-step="portion" data-val="tiny">
+                  <span class="emoji-icon">🤏</span>
+                  <span class="emoji-label">Tiny</span>
+                </div>
+                <div class="emoji-btn" data-step="portion" data-val="fair">
+                  <span class="emoji-icon">⚖️</span>
+                  <span class="emoji-label">Fair</span>
+                </div>
+                <div class="emoji-btn" data-step="portion" data-val="generous">
+                  <span class="emoji-icon">🍲</span>
+                  <span class="emoji-label">Generous</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 2: FRESHNESS -->
+            <div class="review-question-card" id="stepFreshCard" style="display:none;">
+              <div class="review-q-title">2. Was it fresh & moist?</div>
+              <div class="review-q-sub">Late-night test: dry crumb or bakery-fresh?</div>
+              <div class="emoji-tap-options">
+                <div class="emoji-btn" data-step="fresh" data-val="stale">
+                  <span class="emoji-icon">🥀</span>
+                  <span class="emoji-label">Stale/Dry</span>
+                </div>
+                <div class="emoji-btn" data-step="fresh" data-val="okay">
+                  <span class="emoji-icon">😐</span>
+                  <span class="emoji-label">Okay</span>
+                </div>
+                <div class="emoji-btn" data-step="fresh" data-val="fresh">
+                  <span class="emoji-icon">🌿</span>
+                  <span class="emoji-label">Ultra Fresh</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 3: TASTE -->
+            <div class="review-question-card" id="stepTasteCard" style="display:none;">
+              <div class="review-q-title">3. Flavor & Texture verdict?</div>
+              <div class="review-q-sub">No essays needed, just your raw reaction.</div>
+              <div class="emoji-tap-options">
+                <div class="emoji-btn" data-step="taste" data-val="meh">
+                  <span class="emoji-icon">😕</span>
+                  <span class="emoji-label">Meh</span>
+                </div>
+                <div class="emoji-btn" data-step="taste" data-val="good">
+                  <span class="emoji-icon">😋</span>
+                  <span class="emoji-label">Good</span>
+                </div>
+                <div class="emoji-btn" data-step="taste" data-val="kiss">
+                  <span class="emoji-icon">🤌</span>
+                  <span class="emoji-label">Chef's Kiss</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- STEP 4: OPTIONAL 5-SEC UNBOXING CLIP -->
+            <div class="review-question-card" id="stepCameraCard" style="display:none;">
+              <div class="review-q-title">Optional: Add 5-Sec Video Proof</div>
+              <div class="review-q-sub">Earn extra +30 Plate Coins for verified video!</div>
+
+              <div class="camera-mock-box" id="cameraBox">
+                <div class="camera-countdown-ring" id="recordBtnRing" title="Tap to simulate 5-sec recording">
+                  <span id="countdownNumber">REC</span>
+                </div>
+                <span style="font-size:10px; margin-top:10px; opacity:0.8;">Tap circle to simulate unboxing clip</span>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; margin-top:12px;">
+                <button class="top-btn" id="skipVideoBtn"
+                  style="color:var(--text-plum); background:transparent; border:none;">
+                  Skip video (Claim +20 Coins)
+                </button>
+                <button class="add-btn" id="submitVideoProofBtn" style="display:none;">
+                  Upload Proof (+50 Coins)
+                </button>
+              </div>
+            </div>
+
+            <!-- SUCCESS REWARD CARD -->
+            <div class="review-question-card" id="stepSuccessCard"
+              style="display:none; background:#ECFDF5; border-color:#A7F3D0;">
+              <span style="font-size:42px;">🪙🎉</span>
+              <div style="font-size:18px; font-weight:900; color:#065F46; margin:8px 0 4px 0;" id="successCoinText">
+                +20 Plate Coins Claimed!
+              </div>
+              <p style="font-size:11px; color:#047857; margin-bottom:14px;">
+                Applied to your next order. Detective Dumpling salutes your service: you saved fellow eaters from blind
+                star deception.
+              </p>
+              <button class="add-btn" id="finishReviewBtn" style="width:100%; padding:10px;">
+                Back to Menu
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 4: VERIFIED EATERS GATE SHIELD -->
+      <div class="modal-overlay" id="gateShieldModal">
+        <div class="bottom-sheet">
+          <div class="sheet-handle"></div>
+          <div style="text-align:center; padding:10px 0;">
+            <span style="font-size:48px;">🛡️🔒</span>
+            <h3 style="font-size:17px; font-weight:800; color:var(--text-plum); margin:10px 0 6px 0;">
+              Verified Eaters Gate
+            </h3>
+            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:16px;">
+              Rival bakery? Random internet stranger? Nice try.<br>
+              <strong>Only diners who paid for and received this exact dish in the last 30 days can post proof.</strong>
+            </p>
+            <div
+              style="background:var(--surface-cream); border-radius:var(--radius-md); padding:12px; font-size:11px; color:#78350F; text-align:left; border:1px solid #FDE68A; margin-bottom:16px;">
+              <strong>Anti-Fraud Shield Status:</strong><br>
+              • Order # verified via GPS delivery ping: ✔ Passed<br>
+              • Single review per dish rule: ✔ Active<br>
+              • Stock video perceptual filter: ✔ 0 duplicate frames
+            </div>
+            <button class="add-btn" style="width:100%; padding:10px;" id="closeGateBtn">Understood</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 5: PLATE COINS WALLET SHEET -->
+      <div class="modal-overlay" id="walletModal">
+        <div class="bottom-sheet">
+          <div class="sheet-handle"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h3 style="font-size:17px; font-weight:800; color:var(--text-plum);">Plate Coins Wallet</h3>
+            <span style="cursor:pointer; font-size:22px;" class="close-modal-x">&times;</span>
+          </div>
+
+          <div
+            style="background:linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border-radius:var(--radius-lg); padding:16px; border:1px solid #FDE68A; margin-bottom:16px;">
+            <div style="font-size:11px; font-weight:800; color:#92400E;">YOUR REWARD BALANCE</div>
+            <div style="display:flex; align-items:baseline; gap:6px; margin:4px 0;">
+              <span style="font-size:32px; font-weight:900; color:#B45309;" id="walletModalBalance">140</span>
+              <span style="font-size:14px; font-weight:800; color:#92400E;">Coins (= ₹14 off)</span>
+            </div>
+            <div style="font-size:11px; color:#78350F;">
+              Exchange rate: <strong>100 Coins = ₹10 off</strong> at checkout.
+            </div>
+          </div>
+
+          <div style="font-size:12px; font-weight:800; color:var(--text-plum); margin-bottom:8px;">Activity Ledger</div>
+          <div style="display:flex; flex-direction:column; gap:8px; font-size:11px;" id="walletLedgerList">
+            <div
+              style="display:flex; justify-content:space-between; background:var(--surface-cream); padding:10px; border-radius:8px;">
+              <div>
+                <strong>3-Tap Review + 5s Video</strong><br>
+                <span style="color:var(--text-muted);">Artisan Butter Croissant</span>
+              </div>
+              <span style="color:#059669; font-weight:800;">+50 🪙</span>
+            </div>
+            <div
+              style="display:flex; justify-content:space-between; background:var(--surface-cream); padding:10px; border-radius:8px;">
+              <div>
+                <strong>3-Tap Portion Report</strong><br>
+                <span style="color:var(--text-muted);">Nutella Babka</span>
+              </div>
+              <span style="color:#059669; font-weight:800;">+20 🪙</span>
+            </div>
+            <div
+              style="display:flex; justify-content:space-between; background:var(--surface-cream); padding:10px; border-radius:8px;">
+              <div>
+                <strong>Redeemed at Checkout</strong><br>
+                <span style="color:var(--text-muted);">Order #8201</span>
+              </div>
+              <span style="color:#DC2626; font-weight:800;">-100 🪙</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL 6: ADMIN / ANTI-FRAUD PIPELINE SHEET -->
+      <div class="modal-overlay" id="adminModal">
+        <div class="bottom-sheet">
+          <div class="sheet-handle"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3 style="font-size:16px; font-weight:800; color:var(--text-plum);">🛡️ Anti-Fraud Architecture</h3>
+            <span style="cursor:pointer; font-size:22px;" class="close-modal-x">&times;</span>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:10px; font-size:11px;">
+            <div style="background:var(--surface-cream); padding:10px; border-radius:8px;">
+              <strong>1. Order Delivery Ping:</strong> Review capability unlocks ONLY when the rider app registers an
+              in-polygon GPS drop-off.
+            </div>
+            <div style="background:var(--surface-cream); padding:10px; border-radius:8px;">
+              <strong>2. 30-Day Eligibility Horizon:</strong> Unlocks last exactly 30 days. After 30 days, memory
+              expires to keep freshness high.
+            </div>
+            <div style="background:var(--surface-cream); padding:10px; border-radius:8px;">
+              <strong>3. Dish-Specific Token:</strong> Single submission per dish per order ID. No spam brigading.
+            </div>
+            <div style="background:var(--surface-cream); padding:10px; border-radius:8px;">
+              <strong>4. Perceptual Video Hash:</strong> Reject reused screen recordings or internet stock clips
+              automatically.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div> <!-- End phone-frame -->
+
+    <!-- ══════════════════════════════════════════════════════════
+         DEMO CONTROLS DRAWER (THE STAR OF THE DEMO)
+         ══════════════════════════════════════════════════════════ -->
+    <div class="demo-controls-panel" id="demoControlsPanel">
+      <div class="demo-header" id="demoHeader">
+        <h4>⚡ DEMO CONTROLS (LIVE RADAR)</h4>
+        <span id="demoToggleChevron" style="font-size:12px;">▼</span>
+      </div>
+
+      <p style="font-size:10px; color:#D1D5DB; margin-bottom:10px;">
+        Trigger real-time badge state shifts and watch recency decay calculate instantly:
+      </p>
+
+      <div class="demo-btn-grid">
+        <button class="demo-action-btn" id="demoSimulateNegativeBtn" title="Adds dry pastry reviews to Truffle Cake">
+          💥 Drop Truffle Freshness
+        </button>
+        <button class="demo-action-btn" id="demoSwapBakerBtn" title="Simulates head baker swap event">
+          👨‍🍳 Swap Head Baker
+        </button>
+        <button class="demo-action-btn" id="demoJump7DaysBtn" title="Advances 7 days to decay older reviews">
+          ⏩ Jump +7 Days Ahead
+        </button>
+        <button class="demo-action-btn" id="demoResetBtn" title="Reset all data to pristine baseline">
+          🔄 Reset Baseline
+        </button>
+      </div>
+
+      <!-- Real-time formula indicator -->
+      <div style="font-size:10px; color:#FCD34D; font-weight:700;">Formula Engine Status:</div>
+      <div class="decay-formula-box" id="formulaStatusBox">
+        Decay Window: Day 0–14 (Active)<br>
+        Truffle Freshness Score: <span id="formulaTruffleScore">54% (Mixed)</span><br>
+        Recency Weight Multiplier: 1.0 (Fresh)
+      </div>
+
+      <!-- Live Analytics Event Logger -->
+      <div style="font-size:10px; color:#93C5FD; font-weight:700; margin-top:8px;">Analytics Hook Stream:</div>
+      <div class="analytics-log-box" id="analyticsLogBox">
+        [11:47:01 PM] menu_view: The Midnight Baker<br>
+        [11:47:02 PM] proof_score_loaded: 94% verified
+      </div>
+    </div>
+
+  </div> <!-- End app-workbench -->
+
+  <!-- ══════════════════════════════════════════════════════════
+       JAVASCRIPT APPLICATION LOGIC & STATE STORE
+       ══════════════════════════════════════════════════════════ -->
+  <script>
+    // State Store
+    const state = {
+      theme: 'light',
+      currentRestaurantIndex: 0,
+      activeFilter: 'all',
+      proofMode: 'proof', // 'proof' or 'hype'
+      cart: [],
+      walletCoins: 140,
+      simulatedDaysForward: 0,
+      easterEggClicks: 0,
+      selectedDishForDetail: null,
+      currentReviewStep: 1,
+      reviewDraft: { portion: null, fresh: null, taste: null, video: false },
+
+      // Restaurants & Dish Database with 14-day proof metrics
+      restaurants: [
+        {
+          id: 'rest_baker',
+          name: 'The Midnight Baker & Co.',
+          cuisine: 'French Patisserie, Artisanal Desserts • 2.4 km',
+          dishes: [
+            {
+              id: 'dish_truffle',
+              name: 'Dark Belgian Chocolate Truffle Cake',
+              price: 290,
+              portion: 'Serves 1 • 320 g',
+              desc: '70% dark Belgian ganache, slow-baked sponge. Tested late-night for moisture and richness.',
+              isVeg: true,
+              emoji: '🍫',
+              verifiedEaters: 48,
+              daysAgoLatest: 1,
+              proofScore: 68,
+              portionStatus: 'verified', // verified, mixed, warning
+              freshStatus: 'mixed',      // drops during demo
+              intactStatus: 'verified',
+              droppedThisWeek: true,
+              hasVideo: true,
+              videos: [
+                { id: 'v1', time: '0:05', daysAgo: '1d ago', buyer: 'Aarav M.', emoji: '🍰', note: 'Dry crumb on edge' },
+                { id: 'v2', time: '0:05', daysAgo: '2d ago', buyer: 'Pooja K.', emoji: '🍫', note: 'Rich ganache' },
+                { id: 'v3', time: '0:05', daysAgo: '3d ago', buyer: 'Rohan S.', emoji: '✨', note: 'Intact box' }
+              ]
+            },
+            {
+              id: 'dish_croissant',
+              name: 'Artisan Butter Croissant',
+              price: 180,
+              portion: '1 piece • 110 g',
+              desc: 'Layered French butter lamination. Sentient croissant approved, crisp flaky honeycomb core.',
+              isVeg: true,
+              emoji: '🥐',
+              verifiedEaters: 64,
+              daysAgoLatest: 0,
+              proofScore: 96,
+              portionStatus: 'verified',
+              freshStatus: 'verified',
+              intactStatus: 'verified',
+              droppedThisWeek: false,
+              hasVideo: true,
+              videos: [
+                { id: 'v4', time: '0:05', daysAgo: '3h ago', buyer: 'Karan T.', emoji: '🥐', note: 'Crunch sound audible!' },
+                { id: 'v5', time: '0:05', daysAgo: '1d ago', buyer: 'Maya V.', emoji: '🧈', note: 'Golden lamination' }
+              ]
+            },
+            {
+              id: 'dish_babka',
+              name: 'Nutella Hazelnut Swirl Babka',
+              price: 240,
+              portion: 'Serves 1 • 250 g',
+              desc: 'Braided brioche ribboned with toasted Piedmont hazelnuts and generous warm Nutella filling.',
+              isVeg: true,
+              emoji: '🍞',
+              verifiedEaters: 32,
+              daysAgoLatest: 2,
+              proofScore: 98,
+              portionStatus: 'verified',
+              freshStatus: 'verified',
+              intactStatus: 'verified',
+              droppedThisWeek: false,
+              hasVideo: true,
+              videos: [
+                { id: 'v6', time: '0:05', daysAgo: '2d ago', buyer: 'Vikram B.', emoji: '🌰', note: 'Packed hot & fresh' }
+              ]
+            },
+            {
+              id: 'dish_cheesecake',
+              name: 'New York Blueberry Cheesecake',
+              price: 320,
+              portion: 'Serves 1 • 140 g (Coaster Sized)',
+              desc: 'Philadelphia cream cheese on graham cracker base with wild blueberry compote.',
+              isVeg: true,
+              emoji: '🫐',
+              verifiedEaters: 29,
+              daysAgoLatest: 3,
+              proofScore: 74,
+              portionStatus: 'warning', // Warning: coaster sized!
+              freshStatus: 'verified',
+              intactStatus: 'mixed',
+              droppedThisWeek: false,
+              hasVideo: true,
+              videos: [
+                { id: 'v7', time: '0:05', daysAgo: '3d ago', buyer: 'Sunita P.', emoji: '🫐', note: 'Smaller than expected' }
+              ]
+            },
+            {
+              id: 'dish_matcha',
+              name: 'Matcha Opera Layer Cake',
+              price: 350,
+              portion: 'Serves 1 • 160 g',
+              desc: 'Uji ceremonial grade matcha, almond jaconde, white chocolate matcha buttercream.',
+              isVeg: true,
+              emoji: '🍵',
+              verifiedEaters: 0, // ZERO PROOF STATE
+              daysAgoLatest: null,
+              proofScore: null,
+              portionStatus: 'none',
+              freshStatus: 'none',
+              intactStatus: 'none',
+              droppedThisWeek: false,
+              hasVideo: false,
+              videos: []
+            },
+            {
+              id: 'dish_garlic',
+              name: 'Charred Sourdough Garlic Toast',
+              price: 160,
+              portion: '3 pieces • 180 g',
+              desc: 'Roasted garlic confit butter on naturally fermented 36-hour country sourdough loaf.',
+              isVeg: true,
+              emoji: '🧄',
+              verifiedEaters: 3, // EARLY PROOF HONEST CAP (<5 eaters)
+              daysAgoLatest: 4,
+              proofScore: 92,
+              portionStatus: 'verified',
+              freshStatus: 'verified',
+              intactStatus: 'verified',
+              droppedThisWeek: false,
+              hasVideo: true,
+              videos: [
+                { id: 'v8', time: '0:05', daysAgo: '4d ago', buyer: 'Deepak G.', emoji: '🧄', note: 'Super crispy' }
+              ]
+            }
+          ]
+        },
+        {
+          id: 'rest_dilli',
+          name: 'Dilli Rasoi 24/7',
+          cuisine: 'North Indian, Awadhi Biryani, Tandoor • 3.8 km',
+          dishes: [
+            {
+              id: 'dish_butter_chicken',
+              name: 'Old Delhi Aslam Butter Chicken',
+              price: 360,
+              portion: 'Serves 2 • 500 g',
+              desc: 'Charcoal-smoked boneless chicken thigh drowned in velvety spiced tomato butter gravy.',
+              isVeg: false,
+              emoji: '🍗',
+              verifiedEaters: 84,
+              daysAgoLatest: 0,
+              proofScore: 95,
+              portionStatus: 'verified',
+              freshStatus: 'verified',
+              intactStatus: 'verified',
+              droppedThisWeek: false,
+              hasVideo: true,
+              videos: [
+                { id: 'v9', time: '0:05', daysAgo: '4h ago', buyer: 'Sameer N.', emoji: '🍛', note: 'Seal intact, piping hot' }
+              ]
+            },
+            {
+              id: 'dish_mutton_biryani',
+              name: 'Awadhi Dum Mutton Biryani',
+              price: 440,
+              portion: 'Serves 2 • 650 g',
+              desc: 'Sealed handi with fragrant aged Basmati rice, saffron, and tender goat meat cuts.',
+              isVeg: false,
+              emoji: '🍲',
+              verifiedEaters: 52,
+              daysAgoLatest: 1,
+              proofScore: 92,
+              portionStatus: 'verified',
+              freshStatus: 'verified',
+              intactStatus: 'verified',
+              droppedThisWeek: false,
+              hasVideo: true,
+              videos: [
+                { id: 'v10', time: '0:05', daysAgo: '1d ago', buyer: 'Harsh R.', emoji: '🍲', note: 'Portion is massive' }
+              ]
+            },
+            {
+              id: 'dish_dal_makhani',
+              name: 'Dal Makhani Slow-Cooked 24h',
+              price: 260,
+              portion: 'Serves 2 • 450 g',
+              desc: 'Black urad lentils simmered overnight on slow charcoal fire with cultured white butter.',
+              isVeg: true,
+              emoji: '🫕',
+              verifiedEaters: 61,
+              daysAgoLatest: 2,
+              proofScore: 94,
+              portionStatus: 'verified',
+              freshStatus: 'verified',
+              intactStatus: 'verified',
+              droppedThisWeek: false,
+              hasVideo: true,
+              videos: [
+                { id: 'v11', time: '0:05', daysAgo: '2d ago', buyer: 'Ananya S.', emoji: '🫕', note: 'Creamy texture' }
+              ]
+            },
+            {
+              id: 'dish_paneer_roll',
+              name: 'Kolkata Kathi Paneer Roll',
+              price: 190,
+              portion: '1 roll • 220 g',
+              desc: 'Flaky paratha rolled with tandoor paneer tikka, pickled onions, and spicy mint chutney.',
+              isVeg: true,
+              emoji: '🌯',
+              verifiedEaters: 38,
+              daysAgoLatest: 1,
+              proofScore: 61,
+              portionStatus: 'mixed',
+              freshStatus: 'mixed',
+              intactStatus: 'warning', // Warning: foil leaked oil
+              droppedThisWeek: true,
+              hasVideo: true,
+              videos: [
+                { id: 'v12', time: '0:05', daysAgo: '1d ago', buyer: 'Nikhil C.', emoji: '🌯', note: 'Foil wrapper leaked oil' }
+              ]
+            },
+            {
+              id: 'dish_truffle_kulcha',
+              name: 'Truffle & Cheese Stuffed Kulcha',
+              price: 210,
+              portion: '2 pieces • 200 g',
+              desc: 'Tandoor leavened bread stuffed with melted mozzarella and black truffle glaze.',
+              isVeg: true,
+              emoji: '🫓',
+              verifiedEaters: 0, // ZERO PROOF
+              daysAgoLatest: null,
+              proofScore: null,
+              portionStatus: 'none',
+              freshStatus: 'none',
+              intactStatus: 'none',
+              droppedThisWeek: false,
+              hasVideo: false,
+              videos: []
+            },
+            {
+              id: 'dish_gulab_jamun',
+              name: 'Kesar Gulab Jamun with Rabri',
+              price: 170,
+              portion: '2 pieces • 160 g',
+              desc: 'Mawa dumplings soaked in saffron-cardamom syrup with thick malai rabri.',
+              isVeg: true,
+              emoji: '🍯',
+              verifiedEaters: 4, // EARLY PROOF
+              daysAgoLatest: 3,
+              proofScore: 90,
+              portionStatus: 'verified',
+              freshStatus: 'verified',
+              intactStatus: 'verified',
+              droppedThisWeek: false,
+              hasVideo: true,
+              videos: [
+                { id: 'v13', time: '0:05', daysAgo: '3d ago', buyer: 'Priya D.', emoji: '🍯', note: 'Warm & soft' }
+              ]
+            }
+          ]
+        }
+      ]
+    };
+
+    // DOM Elements
+    const dishListContainer = document.getElementById('dishListContainer');
+    const heroScoreVal = document.getElementById('heroScoreVal');
+    const heroDonutRing = document.getElementById('heroDonutRing');
+    const heroVerifiedCount = document.getElementById('heroVerifiedCount');
+    const proofScoreCard = document.getElementById('proofScoreCard');
+    const hypeRatingCard = document.getElementById('hypeRatingCard');
+    const hypeTabBtn = document.getElementById('hypeTabBtn');
+    const proofTabBtn = document.getElementById('proofTabBtn');
+    const currentRestName = document.getElementById('currentRestName');
+    const floatingCartBar = document.getElementById('floatingCartBar');
+    const cartCountWeight = document.getElementById('cartCountWeight');
+    const cartPriceTotal = document.getElementById('cartPriceTotal');
+    const walletCoinBalance = document.getElementById('walletCoinBalance');
+    const walletModalBalance = document.getElementById('walletModalBalance');
+    const analyticsLogBox = document.getElementById('analyticsLogBox');
+
+    // Modals
+    const explainerModal = document.getElementById('explainerModal');
+    const dishDetailModal = document.getElementById('dishDetailModal');
+    const postDeliveryModal = document.getElementById('postDeliveryModal');
+    const gateShieldModal = document.getElementById('gateShieldModal');
+    const walletModal = document.getElementById('walletModal');
+    const adminModal = document.getElementById('adminModal');
+
+    // Analytics Logger Function
+    function logEvent(name, data = {}) {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const line = document.createElement('div');
+      const details = Object.entries(data).map(([k, v]) => `${k}=${v}`).join(', ');
+      line.innerHTML = `[${timeStr}] <strong>${name}</strong>${details ? ': ' + details : ''}`;
+      analyticsLogBox.insertBefore(line, analyticsLogBox.firstChild);
+    }
+
+    // Rubber Stamp Trigger Animation
+    function triggerRubberStamp(text = "VERIFIED PROOF") {
+      const stampContainer = document.getElementById('stampContainer');
+      stampContainer.querySelector('.rubber-stamp').textContent = text;
+      stampContainer.classList.add('slam');
+
+      // Haptic-style phone shake
+      const phone = document.getElementById('phoneFrame');
+      phone.style.transform = 'translateY(-2px)';
+      setTimeout(() => { phone.style.transform = 'translateY(2px)'; }, 50);
+      setTimeout(() => { phone.style.transform = 'translateY(0)'; }, 100);
+
+      setTimeout(() => {
+        stampContainer.classList.remove('slam');
+      }, 1400);
+    }
+
+    // Confetti Cannon (Canvas Based)
+    function shootConfetti() {
+      const canvas = document.getElementById('confettiCanvas');
+      const ctx = canvas.getContext('2d');
+      const pieces = [];
+      const colors = ['#FF5238', '#10B981', '#F59E0B', '#3B82F6', '#EC4899'];
+
+      for (let i = 0; i < 70; i++) {
+        pieces.push({
+          x: canvas.width / 2,
+          y: canvas.height * 0.45,
+          vx: (Math.random() - 0.5) * 8,
+          vy: (Math.random() - 0.7) * 10,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: Math.random() * 7 + 4,
+          tilt: Math.random() * 10
+        });
+      }
+
+      let frame = 0;
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.25; // gravity
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        frame++;
+        if (frame < 60) {
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+      animate();
+    }
+
+    // Render Badges Helper
+    function renderBadgeHtml(type, status, droppedTag = false) {
+      let icon = '';
+      let label = '';
+      let stateClass = '';
+
+      if (type === 'portion') {
+        icon = '⚖️';
+        label = 'True-to-Size Portion';
+      } else if (type === 'fresh') {
+        icon = '🌱';
+        label = 'Fresh & Moist';
+      } else if (type === 'intact') {
+        icon = '📦';
+        label = 'Arrived Intact';
+      }
+
+      if (status === 'verified') {
+        stateClass = 'badge-state-verified';
+      } else if (status === 'mixed') {
+        stateClass = 'badge-state-mixed';
+      } else if (status === 'warning') {
+        stateClass = 'badge-state-warning';
+      }
+
+      return `
+        <span class="proof-badge ${stateClass}" title="${label}: ${status}">
+          <span>${icon}</span>
+          <span>${label}</span>
+          ${droppedTag ? '<span class="dropped-tag">Dropped this wk</span>' : ''}
+        </span>
+      `;
+    }
+
+    // Render Menu Dishes
+    function renderDishes() {
+      const rest = state.restaurants[state.currentRestaurantIndex];
+      currentRestName.textContent = rest.name;
+
+      // Filter dishes
+      let filtered = rest.dishes.filter(d => {
+        if (state.activeFilter === 'video') return d.hasVideo;
+        if (state.activeFilter === 'fresh') return d.freshStatus === 'verified';
+        if (state.activeFilter === 'portion') return d.portionStatus === 'verified';
+        if (state.activeFilter === 'recent') return d.daysAgoLatest !== null && d.daysAgoLatest <= 3;
+        return true;
+      });
+
+      dishListContainer.innerHTML = '';
+
+      filtered.forEach(dish => {
+        const card = document.createElement('article');
+        card.className = 'dish-card';
+
+        // Check if strong proof for glowing add button
+        const isStrongProof = dish.proofScore && dish.proofScore >= 90;
+
+        // Build Video Strip or Zero Proof
+        let videoStripHtml = '';
+        if (dish.verifiedEaters === 0) {
+          videoStripHtml = `
+            <div class="zero-proof-state">
+              <span class="zero-proof-mascot">🥟🔍</span>
+              <div class="zero-proof-text">
+                <div class="zero-proof-title">No proof yet. Be the first witness!</div>
+                <div class="zero-proof-sub">Detective Dumpling found zero verified clips. Order it to claim the badge.</div>
+              </div>
+            </div>
+          `;
+        } else {
+          const videoThumbs = dish.videos.map(v => `
+            <div class="video-thumb" onclick="openDishDetail('${dish.id}')">
+              <div class="video-mock-gradient" style="background: linear-gradient(135deg, #FF7E5F, #FEB47B);">
+                <span class="video-thumb-emoji">${v.emoji}</span>
+                <span class="play-badge-icon">▶</span>
+                <span class="video-time-tag">${v.time}</span>
+                <span class="video-buyer-tag">✔</span>
+              </div>
+            </div>
+          `).join('');
+
+          const honestEarlyBadge = dish.verifiedEaters < 5
+            ? `<span style="font-size:9px; background:#FEF3C7; color:#92400E; padding:1px 5px; border-radius:4px; font-weight:800;">Early Proof (${dish.verifiedEaters}/5)</span>`
+            : '';
+
+          videoStripHtml = `
+            <div class="proof-video-strip-wrap">
+              <div class="proof-strip-header">
+                <div class="verified-eaters-count">
+                  <span>✔</span>
+                  <strong>${dish.verifiedEaters} verified eaters</strong>
+                  ${honestEarlyBadge}
+                </div>
+                <div class="freshness-timestamp">
+                  latest proof: ${dish.daysAgoLatest === 0 ? 'Today' : dish.daysAgoLatest + 'd ago'}
+                </div>
+              </div>
+
+              <div class="video-thumbnails-row">
+                ${videoThumbs}
+              </div>
+
+              <div class="dish-badges-row">
+                ${renderBadgeHtml('portion', dish.portionStatus)}
+                ${renderBadgeHtml('fresh', dish.freshStatus, dish.droppedThisWeek)}
+                ${renderBadgeHtml('intact', dish.intactStatus)}
+              </div>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="dish-header-row">
+            <div class="dish-info" onclick="openDishDetail('${dish.id}')">
+              <div class="dish-name">
+                <span class="dish-type-icon ${dish.isVeg ? '' : 'non-veg'}"></span>
+                <span>${dish.name}</span>
+              </div>
+              <div class="dish-price-line">
+                <span>₹${dish.price}</span>
+                <span class="dish-portion-tag">${dish.portion}</span>
+              </div>
+              <p class="dish-desc">${dish.desc}</p>
+            </div>
+
+            <div class="dish-action-col">
+              <div class="dish-photo-wrap" onclick="openDishDetail('${dish.id}')">
+                <div class="dish-img-placeholder">${dish.emoji}</div>
+              </div>
+              <button class="add-btn ${isStrongProof ? 'strong-proof-glow' : ''}" onclick="addToCart('${dish.id}')">
+                ADD +
+              </button>
+            </div>
+          </div>
+
+          ${videoStripHtml}
+        `;
+
+        dishListContainer.appendChild(card);
+      });
+
+      // Update hero proof score summary
+      updateHeroProofCard();
+    }
+
+    // Update Hero Restaurant Proof Card
+    function updateHeroProofCard() {
+      const rest = state.restaurants[state.currentRestaurantIndex];
+      const validDishes = rest.dishes.filter(d => d.proofScore !== null);
+      const avgScore = Math.round(validDishes.reduce((acc, d) => acc + d.proofScore, 0) / validDishes.length);
+      const totalVerified = rest.dishes.reduce((acc, d) => acc + d.verifiedEaters, 0);
+
+      heroScoreVal.textContent = `${avgScore}%`;
+      heroDonutRing.style.background = `conic-gradient(var(--badge-verified) 0% ${avgScore}%, #D1FAE5 ${avgScore}% 100%)`;
+      heroVerifiedCount.textContent = `Based on ${totalVerified} verified eaters in last 14 days • 0 black-box hype`;
+    }
+
+    // Add To Cart Functionality
+    function addToCart(dishId) {
+      const rest = state.restaurants[state.currentRestaurantIndex];
+      const dish = rest.dishes.find(d => d.id === dishId);
+      if (!dish) return;
+
+      state.cart.push(dish);
+      logEvent('add_to_cart', { dish_id: dish.id, price: `₹${dish.price}`, proof_score: `${dish.proofScore}%` });
+
+      // Update floating cart bar
+      const total = state.cart.reduce((sum, item) => sum + item.price, 0);
+      cartCountWeight.textContent = `${state.cart.length} item${state.cart.length > 1 ? 's' : ''} • Serves ${state.cart.length}`;
+      cartPriceTotal.textContent = `₹${total}`;
+      floatingCartBar.classList.add('visible');
+
+      // Subtle rubber stamp
+      triggerRubberStamp('ADDED TO CART');
+    }
+
+    // Open Dish Detail (Screen 2: TikTok Reel + Timeline)
+    window.openDishDetail = function (dishId) {
+      const rest = state.restaurants[state.currentRestaurantIndex];
+      const dish = rest.dishes.find(d => d.id === dishId);
+      if (!dish) return;
+
+      state.selectedDishForDetail = dish;
+      logEvent('proof_video_play', { dish_id: dish.id, proof_score: `${dish.proofScore}%` });
+
+      document.getElementById('detailDishTitle').textContent = dish.name;
+      document.getElementById('detailDishPortion').textContent = `${dish.portion} • ₹${dish.price}`;
+      document.getElementById('detailReelEmoji').textContent = dish.emoji;
+
+      // Update breakdown values
+      const pScore = dish.portionStatus === 'verified' ? 92 : (dish.portionStatus === 'mixed' ? 70 : 42);
+      const fScore = dish.freshStatus === 'verified' ? 95 : (dish.freshStatus === 'mixed' ? 54 : 35);
+      const iScore = dish.intactStatus === 'verified' ? 98 : 65;
+
+      document.getElementById('portionScoreText').textContent = `${pScore}% (${dish.portionStatus.toUpperCase()})`;
+      document.getElementById('freshScoreText').textContent = `${fScore}% (${dish.freshStatus.toUpperCase()})`;
+      document.getElementById('intactScoreText').textContent = `${iScore}% (${dish.intactStatus.toUpperCase()})`;
+
+      document.getElementById('barPortionVerified').style.width = `${pScore}%`;
+      document.getElementById('barFreshVerified').style.width = `${fScore}%`;
+      document.getElementById('barIntactVerified').style.width = `${iScore}%`;
+
+      // Timeline marker
+      const timelineAlertTag = document.getElementById('timelineAlertTag');
+      if (dish.droppedThisWeek) {
+        timelineAlertTag.style.display = 'inline';
+        timelineAlertTag.textContent = '⚠️ Quality Dipped 6d ago';
+      } else {
+        timelineAlertTag.style.display = 'none';
+      }
+
+      dishDetailModal.classList.add('active');
+    };
+
+    // Kitchen Partner View Renderer (Screen 6)
+    function renderKitchenView() {
+      const rest = state.restaurants[state.currentRestaurantIndex];
+      const container = document.getElementById('kitchenDishHealthList');
+      container.innerHTML = '';
+
+      rest.dishes.forEach(d => {
+        const item = document.createElement('div');
+        item.className = 'dish-health-item';
+
+        const statusColor = d.freshStatus === 'verified' ? '#059669' : (d.freshStatus === 'mixed' ? '#D97706' : '#DC2626');
+
+        item.innerHTML = `
+          <div>
+            <div style="font-size:13px; font-weight:800; color:var(--text-plum);">${d.name}</div>
+            <div style="font-size:10px; color:var(--text-muted);">
+              Portion: ${d.portionStatus} • Freshness: ${d.freshStatus} • ${d.verifiedEaters} clips
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <span style="font-size:14px; font-weight:900; color:${statusColor};">${d.proofScore ? d.proofScore + '%' : 'No Proof'}</span>
+            <div style="font-size:9px; color:${d.droppedThisWeek ? '#EF4444' : '#10B981'}; font-weight:700;">
+              ${d.droppedThisWeek ? '▼ Dropping' : '▲ Stable'}
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // EVENT LISTENERS & WIRING
+    // ══════════════════════════════════════════════════════════
+
+    // 1. Proof vs Hype Toggle
+    hypeTabBtn.addEventListener('click', () => {
+      state.proofMode = 'hype';
+      hypeTabBtn.classList.add('active');
+      proofTabBtn.classList.remove('active');
+      proofScoreCard.style.display = 'none';
+      hypeRatingCard.style.display = 'flex';
+      logEvent('toggle_proof_mode', { mode: 'hype' });
+    });
+
+    proofTabBtn.addEventListener('click', () => {
+      state.proofMode = 'proof';
+      proofTabBtn.classList.add('active');
+      hypeTabBtn.classList.remove('active');
+      hypeRatingCard.style.display = 'none';
+      proofScoreCard.style.display = 'flex';
+      logEvent('toggle_proof_mode', { mode: 'proof_of_plate' });
+    });
+
+    // 2. Filter Chips
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        state.activeFilter = chip.dataset.filter;
+        renderDishes();
+        logEvent('filter_applied', { filter: state.activeFilter });
+      });
+    });
+
+    // 3. Switch Restaurant
+    document.getElementById('switchRestaurantBtn').addEventListener('click', () => {
+      state.currentRestaurantIndex = state.currentRestaurantIndex === 0 ? 1 : 0;
+      renderDishes();
+      logEvent('restaurant_switched', { restaurant: state.restaurants[state.currentRestaurantIndex].name });
+    });
+
+    // 4. Close Modal Buttons
+    document.querySelectorAll('.close-modal-x').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+      });
+    });
+
+    document.getElementById('openExplainerBtn').addEventListener('click', () => {
+      explainerModal.classList.add('active');
+      logEvent('explainer_opened');
+    });
+
+    document.getElementById('closeExplainerDoneBtn').addEventListener('click', () => {
+      explainerModal.classList.remove('active');
+    });
+
+    // 5. Portion Reality Check Toggle
+    document.getElementById('toggleRealityBtn').addEventListener('click', () => {
+      const overlay = document.getElementById('portionOverlay');
+      overlay.classList.toggle('active');
+      logEvent('portion_reality_check_toggled');
+    });
+
+    // 6. Modal Add to Cart
+    document.getElementById('modalAddToCartBtn').addEventListener('click', () => {
+      if (state.selectedDishForDetail) {
+        addToCart(state.selectedDishForDetail.id);
+        dishDetailModal.classList.remove('active');
+      }
+    });
+
+    // 7. Save Dish Heart
+    document.getElementById('saveDishBtn').addEventListener('click', () => {
+      document.getElementById('saveDishBtn').innerHTML = '❤️ Saved!';
+      setTimeout(() => { document.getElementById('saveDishBtn').innerHTML = '♡ Save'; }, 1500);
+      logEvent('save_dish', { dish_id: state.selectedDishForDetail?.id });
+    });
+
+    // ══════════════════════════════════════════════════════════
+    // POST-DELIVERY 3-TAP REVIEW STEPPER
+    // ══════════════════════════════════════════════════════════
+    document.getElementById('openReviewMockBtn').addEventListener('click', () => {
+      // Show notification banner inside phone
+      const banner = document.getElementById('pushNotifyContainer');
+      banner.style.display = 'block';
+      logEvent('order_delivered_ping', { order_id: 'ORD-8472' });
+    });
+
+    document.getElementById('deliveryPushCard').addEventListener('click', () => {
+      document.getElementById('pushNotifyContainer').style.display = 'none';
+      state.currentReviewStep = 1;
+      state.reviewDraft = { portion: null, fresh: null, taste: null, video: false };
+
+      // Reset question cards visibility
+      document.getElementById('stepPortionCard').style.display = 'block';
+      document.getElementById('stepFreshCard').style.display = 'none';
+      document.getElementById('stepTasteCard').style.display = 'none';
+      document.getElementById('stepCameraCard').style.display = 'none';
+      document.getElementById('stepSuccessCard').style.display = 'none';
+
+      postDeliveryModal.classList.add('active');
+      logEvent('review_flow_started');
+    });
+
+    // Stepper Button Clicks
+    document.querySelectorAll('.emoji-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const step = btn.dataset.step;
+        const val = btn.dataset.val;
+        state.reviewDraft[step] = val;
+
+        btn.parentElement.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+
+        setTimeout(() => {
+          if (step === 'portion') {
+            document.getElementById('stepPortionCard').style.display = 'none';
+            document.getElementById('stepFreshCard').style.display = 'block';
+          } else if (step === 'fresh') {
+            document.getElementById('stepFreshCard').style.display = 'none';
+            document.getElementById('stepTasteCard').style.display = 'block';
+          } else if (step === 'taste') {
+            document.getElementById('stepTasteCard').style.display = 'none';
+            document.getElementById('stepCameraCard').style.display = 'block';
+          }
+        }, 200);
+      });
+    });
+
+    // Camera Mock Countdown Ring
+    document.getElementById('recordBtnRing').addEventListener('click', () => {
+      let count = 5;
+      const numSpan = document.getElementById('countdownNumber');
+      const timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+          numSpan.textContent = `${count}s`;
+        } else {
+          clearInterval(timer);
+          numSpan.textContent = '✔ DONE';
+          document.getElementById('recordBtnRing').style.borderColor = '#10B981';
+          document.getElementById('submitVideoProofBtn').style.display = 'inline-block';
+          document.getElementById('skipVideoBtn').style.display = 'none';
+        }
+      }, 700);
+    });
+
+    // Skip Video / Finish Review with Confetti
+    function completeReview(withVideo = false) {
+      document.getElementById('stepCameraCard').style.display = 'none';
+      document.getElementById('stepSuccessCard').style.display = 'block';
+
+      const earned = withVideo ? 50 : 20;
+      state.walletCoins += earned;
+      walletCoinBalance.textContent = state.walletCoins;
+      walletModalBalance.textContent = state.walletCoins;
+      document.getElementById('successCoinText').textContent = `+${earned} Plate Coins Claimed!`;
+
+      shootConfetti();
+      triggerRubberStamp('PROOF RECORDED');
+      logEvent('review_submitted', { with_video: withVideo, coins_earned: earned });
+    }
+
+    document.getElementById('skipVideoBtn').addEventListener('click', () => completeReview(false));
+    document.getElementById('submitVideoProofBtn').addEventListener('click', () => completeReview(true));
+
+    document.getElementById('finishReviewBtn').addEventListener('click', () => {
+      postDeliveryModal.classList.remove('active');
+    });
+
+    // 8. Wallet Pill / Modal & Bottom Nav Wiring
+    document.getElementById('walletPillBtn').addEventListener('click', () => {
+      walletModal.classList.add('active');
+      logEvent('wallet_viewed', { balance: state.walletCoins });
+    });
+    document.getElementById('navWalletBtn').addEventListener('click', () => {
+      walletModal.classList.add('active');
+    });
+
+    // Radar Nav Button opens the Verified Eaters Gate demo
+    document.getElementById('navProofRadarBtn').addEventListener('click', () => {
+      gateShieldModal.classList.add('active');
+      logEvent('gate_shield_radar_viewed');
+    });
+
+    document.getElementById('closeGateBtn').addEventListener('click', () => {
+      gateShieldModal.classList.remove('active');
+    });
+
+    // Floating Cart Checkout Click
+    document.getElementById('floatingCartBar').addEventListener('click', () => {
+      triggerRubberStamp('ORDER PLACED!');
+      shootConfetti();
+      alert(`🎉 Order Confirmed! ₹${state.cart.reduce((s, i) => s + i.price, 0)} paid via ProofOfPlate Fast Checkout.\nRider assigned. Delivery expected in 22 mins!`);
+      logEvent('order_placed', { total_items: state.cart.length });
+    });
+
+    // 9. Admin / Anti-Fraud Peek
+    document.getElementById('navAdminPeekBtn').addEventListener('click', () => {
+      adminModal.classList.add('active');
+      logEvent('anti_fraud_peek_viewed');
+    });
+
+    // 10. Partner / Kitchen View Switch
+    document.getElementById('viewKitchenBtn').addEventListener('click', () => {
+      document.getElementById('customerMenuView').style.display = 'none';
+      document.getElementById('kitchenDashboardView').style.display = 'block';
+      renderKitchenView();
+      logEvent('kitchen_dashboard_opened');
+    });
+
+    document.getElementById('exitKitchenBtn').addEventListener('click', () => {
+      document.getElementById('kitchenDashboardView').style.display = 'none';
+      document.getElementById('customerMenuView').style.display = 'block';
+    });
+
+    document.getElementById('navMenuBtn').addEventListener('click', () => {
+      document.getElementById('kitchenDashboardView').style.display = 'none';
+      document.getElementById('customerMenuView').style.display = 'block';
+    });
+
+    // 11. Theme Switcher
+    document.getElementById('toggleThemeBtn').addEventListener('click', () => {
+      state.theme = state.theme === 'light' ? 'dark' : 'light';
+      document.body.setAttribute('data-theme', state.theme);
+      logEvent('theme_toggled', { theme: state.theme });
+    });
+
+    // 12. Easter Egg (Tap Logo 5 Times)
+    document.getElementById('logoEasterEgg').addEventListener('click', () => {
+      state.easterEggClicks++;
+      if (state.easterEggClicks >= 5) {
+        state.easterEggClicks = 0;
+        shootConfetti();
+        triggerRubberStamp('SNACK STASH UNLOCKED!');
+        alert("🎉 You found the secret snack stash! Detective Dumpling awarded you +50 bonus Plate Coins.");
+        state.walletCoins += 50;
+        walletCoinBalance.textContent = state.walletCoins;
+      }
+    });
+
+    // ══════════════════════════════════════════════════════════
+    // DEMO CONTROLS DRAWER: LIVE RECALCULATION & SIMULATION
+    // ══════════════════════════════════════════════════════════
+    const demoHeader = document.getElementById('demoHeader');
+    const demoControlsPanel = document.getElementById('demoControlsPanel');
+    const demoToggleChevron = document.getElementById('demoToggleChevron');
+
+    demoHeader.addEventListener('click', () => {
+      demoControlsPanel.classList.toggle('minimized');
+      demoToggleChevron.textContent = demoControlsPanel.classList.contains('minimized') ? '▲' : '▼';
+    });
+
+    // Action 1: Drop Truffle Freshness
+    document.getElementById('demoSimulateNegativeBtn').addEventListener('click', () => {
+      const rest = state.restaurants[0];
+      const truffle = rest.dishes.find(d => d.id === 'dish_truffle');
+      if (truffle) {
+        truffle.freshStatus = 'warning';
+        truffle.proofScore = 48;
+        truffle.droppedThisWeek = true;
+        renderDishes();
+        document.getElementById('formulaTruffleScore').textContent = '48% (WARNING)';
+        document.getElementById('formulaTruffleScore').style.color = '#EF4444';
+        triggerRubberStamp('BADGE DROPPED!');
+        logEvent('demo_negative_review_injected', { dish: 'Dark Belgian Truffle', new_freshness: '48%' });
+      }
+    });
+
+    // Action 2: Swap Head Baker
+    document.getElementById('demoSwapBakerBtn').addEventListener('click', () => {
+      const rest = state.restaurants[0];
+      const truffle = rest.dishes.find(d => d.id === 'dish_truffle');
+      if (truffle) {
+        truffle.freshStatus = 'warning';
+        truffle.proofScore = 44;
+        truffle.droppedThisWeek = true;
+        renderDishes();
+        alert("👨‍🍳 Kitchen Alert: The Midnight Baker swapped supplier & head baker 6 days ago. Freshness score dropped to 44% (Warning).");
+        logEvent('demo_kitchen_event', { event: 'Baker swapped', impact: 'Freshness drop' });
+      }
+    });
+
+    // Action 3: Jump +7 Days Ahead (Recency Decay in action)
+    document.getElementById('demoJump7DaysBtn').addEventListener('click', () => {
+      state.simulatedDaysForward += 7;
+      document.getElementById('formulaStatusBox').innerHTML = `
+        Decay Window: Day 7–14 (+${state.simulatedDaysForward}d)<br>
+        Recency Weight Multiplier: 0.6 (Decayed)<br>
+        Older positive reviews lost 40% influence!
+      `;
+      alert(`⏩ Jumped +7 days forward! Feedback from >14 days ago decayed to weight 0.15. Badges recomputed live.`);
+      logEvent('recency_decay_triggered', { days_advanced: 7 });
+    });
+
+    // Action 4: Reset Baseline
+    document.getElementById('demoResetBtn').addEventListener('click', () => {
+      state.simulatedDaysForward = 0;
+      const rest = state.restaurants[0];
+      const truffle = rest.dishes.find(d => d.id === 'dish_truffle');
+      if (truffle) {
+        truffle.freshStatus = 'mixed';
+        truffle.proofScore = 68;
+        truffle.droppedThisWeek = true;
+      }
+      document.getElementById('formulaTruffleScore').textContent = '68% (Mixed)';
+      document.getElementById('formulaTruffleScore').style.color = '#F59E0B';
+      renderDishes();
+      logEvent('demo_baseline_reset');
+    });
+
+    // Initial render
+    renderDishes();
+    logEvent('menu_view', { restaurant: state.restaurants[0].name });
+  </script>
+</body>
+
+</html>
